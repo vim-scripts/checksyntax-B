@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-03.
-" @Last Change: 2010-10-18.
-" @Revision:    214
+" @Last Change: 2010-11-11.
+" @Revision:    233
 
 
 if !exists('g:checksyntax#failrx')
@@ -76,6 +76,21 @@ if !exists('g:checksyntax.javascript')
                     \ 'okrx': '0 error(s), 0 warning(s)',
                     \ }
     endif
+endif
+
+
+""" Python
+if !exists('g:checksyntax.python')
+    let g:checksyntax['python'] = {
+                \ 'cmd': 'pyflakes',
+                \ 'alt': 'pylint'
+                \ }
+endif
+
+if !exists('g:checksyntax.pylint')
+    let g:checksyntax['pylint'] = {
+                \ 'compiler': 'pylint'
+                \ }
 endif
 
 
@@ -264,9 +279,11 @@ function! s:Make(def)
         echom v:errmsg
         echohl NONE
     finally
-        if bufnr == bufnr('%')
-            call setpos('.', pos)
+        " TLogVAR pos, bufnr
+        if bufnr != bufnr('%')
+            exec bufnr 'buffer'
         endif
+        call setpos('.', pos)
     endtry
     return 0
 endf
@@ -318,12 +335,12 @@ function! checksyntax#Check(manually, ...)
         call map(qfl, 's:CompleteItem(def, v:val)')
         call setqflist(qfl)
         " echom "DBG 1" string(qfl)
+        redraw!
         if len(qfl) == 0
             call CheckSyntaxSucceed(a:manually)
         else
             call CheckSyntaxFail(a:manually)
         endif
-        redraw!
     endif
 endf
 
